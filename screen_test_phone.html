@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>屏幕光谱测试 - 纯净版</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 禁止滚动 */
+            background-color: #000000;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            touch-action: none; /* 禁止默认触摸行为 */
+        }
+        #display-area {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.2s;
+        }
+        #hint-text {
+            position: absolute;
+            bottom: 30px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 14px;
+            text-align: center;
+            pointer-events: none; /* 让点击穿透文字 */
+            background: rgba(0,0,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+        }
+        #color-name {
+            position: absolute;
+            top: 40px;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 24px;
+            font-weight: bold;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            pointer-events: none;
+        }
+        /* 防止长按选中文字 */
+        * {
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body>
+
+    <div id="display-area"></div>
+    <div id="color-name">点击切换颜色</div>
+    <div id="hint-text">轻触屏幕切换：白 → 红 → 绿 → 蓝 → 黑</div>
+
+    <script>
+        // 定义颜色序列：白 -> 红 -> 绿 -> 蓝 -> 黑 -> (循环)
+        const colors = [
+            { code: '#FFFFFF', name: '纯白 (White)' },
+            { code: '#FF0000', name: '纯红 (Red)' },
+            { code: '#00FF00', name: '纯绿 (Green)' },
+            { code: '#0000FF', name: '纯蓝 (Blue)' },
+            { code: '#000000', name: '纯黑 (Black/底噪)' }
+        ];
+
+        let currentIndex = 0;
+        const displayArea = document.getElementById('display-area');
+        const nameText = document.getElementById('color-name');
+        const hintBox = document.getElementById('hint-text');
+
+        // 初始化显示白色
+        updateColor(0);
+
+        // 点击切换逻辑
+        document.body.addEventListener('click', function() {
+            currentIndex = (currentIndex + 1) % colors.length;
+            updateColor(currentIndex);
+        });
+
+        function updateColor(index) {
+            const color = colors[index];
+            displayArea.style.backgroundColor = color.code;
+            nameText.innerText = color.name;
+            
+            // 根据背景色调整文字颜色，保证可见性
+            if (color.code === '#FFFFFF' || color.code === '#00FF00') {
+                nameText.style.color = '#000000';
+                hintBox.style.color = 'rgba(0,0,0,0.6)';
+                hintBox.style.background = 'rgba(255,255,255,0.5)';
+            } else {
+                nameText.style.color = '#FFFFFF';
+                hintBox.style.color = 'rgba(255,255,255,0.6)';
+                hintBox.style.background = 'rgba(0,0,0,0.5)';
+            }
+
+            // 隐藏提示文字的操作引导（可选，保持简洁）
+            if(index > 0) {
+                hintBox.innerText = "再次点击切换下一个颜色";
+            } else {
+                hintBox.innerText = "轻触屏幕切换：白 → 红 → 绿 → 蓝 → 黑";
+            }
+        }
+
+        // 防止双击缩放
+        document.addEventListener('dblclick', function(event) {
+            event.preventDefault();
+        }, { passive: false });
+    </script>
+</body>
+</html>
